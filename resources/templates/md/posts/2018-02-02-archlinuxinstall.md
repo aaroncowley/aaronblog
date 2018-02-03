@@ -137,4 +137,227 @@ swapon /dev/sda3
 
 Get excited its pacstrap time.
 
+Mount the root "/" partition:
+
 ```bash
+mount /dev/sda2 /mnt
+```
+
+Mount the "/boot" partition:
+
+```bash
+mkdir -p /mnt/boot
+mount /dev/sda1 /mnt/boot
+```
+
+Install the base system:
+
+```bash
+pacstrap /mnt base base-devel
+```
+
+Generate the fstab:
+
+```bash
+genfstab -U -p /mnt >> /mnt/etc/fstab
+```
+
+Edit the fstab file so that the / partition ends with 2, the boot ends with 1 and swap ends in 0
+
+If you would like the fstab to be optimized for ssd use add discard to the end of the ext4 partition.
+
+Below is my current fstab
+
+```
+# Static information about the filesystems.
+# See fstab(5) for details.
+
+# <file system> <dir> <type> <options> <dump> <pass>
+# /dev/sda2
+UUID    /         	ext4      	rw,relatime,data=ordered,discard	0 2
+
+# /dev/sda1
+UUID     	/boot     	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro	0 1
+
+# /dev/sda3
+UUID    none      	swap      	defaults,pri=-2	0 0
+```
+
+
+
+
+## Base System Configuration
+
+Enter the new system with arch-chroot:
+
+To prioritize, we need vim before anything else, this step is very important.
+
+```bash
+pacman -S gvim
+```
+
+
+```bash
+arch-chroot /mnt
+```
+
+Open locale.gen:
+
+```bash
+vim /etc/locale.gen
+```
+
+Uncomment each locale, the en_US.UTF-8 UTF-8 locale is at the top of the file so uncommenting it here is the easiest place to do so for a standard english language system.
+
+Save and exit the file and generate the locales from bash:
+
+```bash
+locale-gen
+```
+
+Create the locale.conf file with your chosen locale:
+
+```bash
+echo LANG=en_US.UTF-8 > /etc/locale.conf
+```
+
+The above works only if you selected the english UTF-8 locale.
+
+Go ahead and export it for the current session as well:
+
+```bash
+export LANG=en_US.UTF-8
+```
+
+Set the timezone with the below command.  If your timezone differs from mine then browse to /usr/share/zoneinfo/ and you will see all of the zones, cd into the zone and then find your subzone.
+
+```bash
+ln -s /usr/share/zoneinfo/Zone/SubZone /etc/localtime
+```
+
+Now set the hardware clock:
+
+```bash
+hwclock --systohc --utc
+```
+
+## System Administration
+
+First set an admin password:
+
+```bash
+passwd
+```
+
+Name your new system with the following:
+
+```bash
+echo good-system-name > /etc/hostname
+```
+
+Edit the /etc/hosts file to also refer to your new hostname.  Add these lines if they are not there.  If they are then append your chosen name onto the end of the lines.
+
+```
+127.0.0.1 localhost.localdomain localhost good-system-name
+::1 localhost.localdomain localhost good-system-name
+```
+
+Install Network Manager
+
+```bash
+pacman -S networkmanager
+systemctl enable networkmanager
+```
+
+Use systemd-boot to set up your EFI system
+
+```bash
+pacman -S dosfstools
+bootctl --path=/boot install
+vim /boot/loader/entries/arch.conf
+```
+
+This all will have installed a bootloader and opened up a new boot loader conffile for systemd to boot the system.  Add the following lines for a nice speedy boot.
+
+```
+title Arch Linux
+linux /vmlinuz-linux
+initrd /initramfs-linux.img
+options root=/dev/sda2 rw elevator=deadline quiet splash resume=/dev/sda3 nmi_watchdog=0
+```
+
+Save and exit and now configure systemd boot to find our config file:
+
+```bash
+echo "default arch" > /boot/loader/loader.conf
+```
+
+Reboot with the following commands:
+
+```bash
+exit
+reboot
+```
+
+
+
+
+## Finishing Up
+
+Create a new user
+
+```bash
+groupadd users
+useradd -m -g users -G wheel -s /bin/bash goodUsername
+```
+
+Install sudo and open up the sudoers file.
+
+```bash
+pacman -S sudo
+vim /etc/sudoers
+```
+
+Uncomment the line:
+
+```
+%wheel ALL=(ALL) ALL
+```
+
+Save and exit.  This line allows your user to execute commands from roor with: 
+
+```bash
+sudo <command>
+```
+
+Create a password for your new user with:
+
+```bash
+passwd goodUsername
+```
+
+Lock up root logins with:
+
+```bash
+passwd -l root
+```
+
+Update your system and install packer (the best aur helper):
+
+```bash
+sudo pacman -Syu
+sudo pacman -S fakeroot jshon expac git wget
+mkdir packer && cd packer
+wget https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=packer
+mv PKGBUILD\?h\=packer PKGBUILD
+makepkg
+sudo pacman -U packer-*.pkg.tar.xz
+cd .. && rm -rf packer
+```
+
+You now have a very minimal but complete Arch Linux install.  Look into some [window managers](https://wiki.archlinux.org/index.php/window_manager) or [desktop environments](https://wiki.archlinux.org/index.php/desktop_environment) to install onto your base system to use it as a desktop, or look into using it as a [server](https://wiki.archlinux.org/index.php/Server).
+
+
+
+
+

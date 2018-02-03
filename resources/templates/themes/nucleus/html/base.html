@@ -33,7 +33,7 @@
     <p id="logo">
         <a title="{{title}}" href="{{index-uri}}">
             <span class="fa fa-linux"></span>
-            <span class="text">Aaron's Blog</span>
+            <span class="text">aaron cowley</span>
         </a>
     </p>
 
@@ -42,7 +42,7 @@
             <p><span class="fa fa-reorder"></span><strong>Menu</strong></p>
         </div>
         <ul class="menu">
-            <li {% if home %} class="active" {% endif %}><a title="Home" href="{{index-uri}}">Home</a></li>
+            <li {% if home %} class="active" {% endif %}><a title="Posts" href="{{index-uri}}">Posts</a></li>
             <li {% if archives %} class="active" {% endif %}><a title="Archives" href="{{archives-uri}}">Archives</a></li>
             {% if tags|not-empty %}
             <li {%ifequal uri tags-uri %} class="active" {% endifequal %}><a title="Tags" href="{{tags-uri}}">Tags</a></li>
@@ -51,18 +51,14 @@
             <li {%ifequal page.uri nav-page.uri %} class="active" {% endifequal %}>
                 <a href="{{nav-page.uri}}">{{nav-page.title}}</a>
             </li>
-            {% endfor %}
-            <li><a title="RSS" href="{{rss-uri}}">RSS</a></li>
+            {% endfor %} 
         </ul>
     </div>
 
     <div id="socialmedia" class="clearfix">
         <ul>
-            <li><a title="GitHub" href="./" rel="external"><span class="fa fa-github"></span></a></li>
-            <li><a title="Stack Overflow" href="./" rel="external"><span class="fa fa-stack-overflow"></span></a></li>
-            <li><a title="Google+" href="./" rel="external"><span class="fa fa-google-plus"></span></a></li>
-            <li><a title="LinkedIn" href="./" rel="external"><span class="fa fa-linkedin"></span></a></li>
-            <li><a title="Last.fm" href="./" rel="external"><span class="fa fa-lastfm"></span></a></li>
+            <li><a title="GitHub" href="https://github.com/aaroncowley" rel="external"><span class="fa fa-github"></span></a></li>
+            <li><a title="LinkedIn" href="https://www.linkedin.com/in/aaron-cowley-3a091b126/" rel="external"><span class="fa fa-linkedin"></span></a></li>
         </ul>
     </div>
 

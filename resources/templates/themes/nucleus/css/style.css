@@ -118,7 +118,7 @@ img.imgfull {
     width: 100%;
     max-width: 280px;
     #background: #A71E2E;
-    background-image: url("https://images.duckduckgo.com/iu/?u=http%3A%2F%2Fwallpapercave.com%2Fwp%2F0Xf6Hpa.jpg&f=1");
+    background-image: url("/blog/img/space.jpg");
     color: #FFF;
     z-index: 3;
     overflow-y: auto;
